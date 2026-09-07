@@ -1,7 +1,6 @@
 name: autoarenaindia-FE
 
 on:
-  pull_request:
   push:
   workflow_dispatch:
 
