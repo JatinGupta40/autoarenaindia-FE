@@ -1,0 +1,47 @@
+name: autoarenaindia-FE
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4.1.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type-check
+        run: npx tsc --noEmit
+
+      # Build fetches live data from Drupal at build time for the static
+      # pages (/, /blog), so it only runs once a reachable backend URL is
+      # configured as a repo variable. Until then this step is skipped
+      # rather than failing every PR against a backend CI can't reach.
+      - name: Build
+        if: ${{ vars.NEXT_PUBLIC_DRUPAL_BASE_URL != '' }}
+        env:
+          NEXT_PUBLIC_DRUPAL_BASE_URL: ${{ vars.NEXT_PUBLIC_DRUPAL_BASE_URL }}
+        run: npm run build
