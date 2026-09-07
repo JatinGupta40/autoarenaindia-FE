@@ -1,0 +1,82 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+:root {
+  --background: #f5fcfc;
+  --foreground: #012b30;
+  --surface: #ffffff;
+  --border: #daeded;
+  --muted: #49545c;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #01191c;
+    --foreground: #edf6ff;
+    --surface: #012b30;
+    --border: #0f3a3f;
+    --muted: #90bbbb;
+  }
+}
+
+@theme inline {
+  --font-display: var(--font-space-grotesk);
+  --font-sans: var(--font-inter);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+
+  /* Brand: dark teal, distinct from the red/blue used by most car marketplaces. */
+  --color-primary-100: #f5fcfc;
+  --color-primary-200: #daeded;
+  --color-primary-400: #90bbbb;
+  --color-primary-600: #17494d;
+  --color-primary-800: #012b30;
+
+  /* Accent: electric sky-blue for CTAs, links and highlights. */
+  --color-accent-100: #edf6ff;
+  --color-accent-200: #bbe6f6;
+  --color-accent-300: #77cdee;
+  --color-accent-400: #00aeef;
+  --color-accent-500: #437fc7;
+
+  --color-neutral-50: #f6f6f2;
+  --color-neutral-100: #f9f9f9;
+  --color-neutral-200: #e9ebed;
+  --color-neutral-300: #d8dcde;
+  --color-neutral-400: #c2c8cc;
+  --color-neutral-500: #87929d;
+  --color-neutral-600: #68737d;
+  --color-neutral-700: #49545c;
+  --color-neutral-800: #2f3941;
+
+  --color-danger-100: #fff0f1;
+  --color-danger-400: #e35b66;
+  --color-danger-600: #cc3340;
+
+  --color-warning-100: #fff7ed;
+  --color-warning-400: #ffb057;
+  --color-warning-600: #ed8f1c;
+
+  --color-success-100: #edf8f4;
+  --color-success-400: #5eae91;
+  --color-success-600: #038153;
+
+  --shadow-card: 0px 1px 2px 0px rgba(1, 43, 48, 0.06), 0px 1px 3px 0px rgba(1, 43, 48, 0.10);
+  --shadow-card-hover: 0px 8px 8px -4px rgba(1, 43, 48, 0.06), 0px 20px 24px -4px rgba(1, 43, 48, 0.12);
+
+  --container-page: 1280px;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+h1, h2, h3, h4, .font-display {
+  font-family: var(--font-display), var(--font-sans), sans-serif;
+}
