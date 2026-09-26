@@ -172,7 +172,7 @@ export default async function CarDetailPage({
 
       <CarDetailNav name={name} price={price ? `From ₹ ${price.amount} ${price.unit}` : ""} sections={sections} />
 
-      <div className="car-detail__content container-page space-y-24 pt-16 sm:space-y-28">
+      <div className="car-detail__content container-page space-y-16 pt-16 sm:space-y-12">
         {/* 3. Key specifications */}
         <section id="specs" className="car-detail__specs">
           <FadeUp className="car-detail__specs-heading">
