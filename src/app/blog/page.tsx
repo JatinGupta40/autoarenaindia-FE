@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getArticles } from "@/lib/queries";
 import { ArticleCard } from "@/components/ArticleCard";
 import { EmptyState } from "@/components/EmptyState";
+import { PageHero } from "@/components/PageHero";
 import { Reveal, RevealItem } from "@/components/Reveal";
 
 export const revalidate = 60;
@@ -15,20 +16,26 @@ export default async function BlogPage() {
   const articles = await getArticles(48);
 
   return (
-    <div className="mx-auto max-w-(--container-page) px-4 sm:px-6 py-8">
-      <h1 className="font-display text-3xl font-700 text-primary-800 dark:text-accent-100 mb-6">Blog</h1>
+    <>
+      <PageHero
+        eyebrow="Journal"
+        title="The AutoArena blog"
+        description="Buying guides, comparisons and maintenance tips for car owners in India."
+      />
 
-      {articles.length === 0 ? (
-        <EmptyState message="No blog posts yet." />
-      ) : (
-        <Reveal className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {articles.map((a) => (
-            <RevealItem key={a.id}>
-              <ArticleCard article={a} />
-            </RevealItem>
-          ))}
-        </Reveal>
-      )}
-    </div>
+      <div className="blog-page__results container-page py-12 sm:py-16">
+        {articles.length === 0 ? (
+          <EmptyState message="No blog posts yet." />
+        ) : (
+          <Reveal className="blog-page__grid grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {articles.map((a) => (
+              <RevealItem key={a.id} className="blog-page__grid-item">
+                <ArticleCard article={a} />
+              </RevealItem>
+            ))}
+          </Reveal>
+        )}
+      </div>
+    </>
   );
 }
