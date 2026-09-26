@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Car } from "@/types/drupal";
 import { formatGenerationRange, formatPriceLakh, joinNames } from "@/utils/format";
+import { bestMileage, engineRange, mileageRange } from "@/utils/variants";
 
 type Row = {
   label: string;
@@ -10,15 +11,10 @@ type Row = {
   better?: "higher" | "lower";
 };
 
-const toNum = (v: string | null | undefined) => {
-  const n = Number(v);
-  return v && !Number.isNaN(n) ? n : null;
-};
-
 const ROWS: Row[] = [
-  { label: "Starting price", value: (c) => formatPriceLakh(c.field_price), score: (c) => toNum(c.field_price), better: "lower" },
-  { label: "Engine", value: (c) => (c.field_engine_capacity ? `${c.field_engine_capacity} cc` : "—") },
-  { label: "Mileage", value: (c) => (c.field_mileage ? `${c.field_mileage} km/l` : "—"), score: (c) => toNum(c.field_mileage), better: "higher" },
+  { label: "Starting price", value: (c) => formatPriceLakh(c.field_price_min), score: (c) => c.field_price_min, better: "lower" },
+  { label: "Engine", value: engineRange },
+  { label: "Mileage", value: mileageRange, score: bestMileage, better: "higher" },
   { label: "Fuel", value: (c) => joinNames(c.field_fuel_type) },
   { label: "Transmission", value: (c) => joinNames(c.field_transmission) },
   { label: "Body type", value: (c) => c.field_body_type?.name ?? "—" },

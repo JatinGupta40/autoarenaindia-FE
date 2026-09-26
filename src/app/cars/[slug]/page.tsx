@@ -3,9 +3,10 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ArrowRight, Calendar, CarFront, ChevronRight, Cog, Fuel, Gauge, Zap } from "lucide-react";
-import { getCarByPath, getCarGenerations, getCarVariants, getNewsByRelatedCar, getRelatedCars } from "@/lib/queries";
+import { getCarByPath, getCarGenerations, getNewsByRelatedCar, getRelatedCars } from "@/lib/queries";
 import { imageAlt, imageUrl } from "@/lib/image";
-import { formatGenerationRange, formatPriceLakh, joinNames, priceParts } from "@/utils/format";
+import { formatGenerationRange, formatPriceLakh, formatRange, joinNames, priceParts } from "@/utils/format";
+import { carVariants, engineRange, mileageRange, termName, variantPowertrains, variantPriceFrom } from "@/utils/variants";
 import { Badge } from "@/components/Badge";
 import { CarCard } from "@/components/CarCard";
 import { CarDetailNav } from "@/components/CarDetailNav";
@@ -46,8 +47,9 @@ export default async function CarDetailPage({
   const car = await getCarByPath(slug);
   if (!car) notFound();
 
-  const [variants, generations, relatedNews, relatedCars] = await Promise.all([
-    getCarVariants(car.id),
+  const variants = carVariants(car);
+  const powertrains = variants.flatMap((v) => v.field_powertrains ?? []);
+  const [generations, relatedNews, relatedCars] = await Promise.all([
     getCarGenerations(car),
     getNewsByRelatedCar(car.id),
     getRelatedCars(car),
@@ -56,11 +58,9 @@ export default async function CarDetailPage({
   const name = `${car.field_brand?.name ?? ""} ${car.field_car_model?.name ?? ""}`.trim();
   const generation = formatGenerationRange(car.field_year_start, car.field_year_end);
   const cover = imageUrl(car.field_car_images?.[0]);
-  const price = priceParts(car.field_price);
-
-  const variantPrices = variants.map((v) => Number(v.field_price)).filter((n) => !Number.isNaN(n) && n > 0);
-  const minPrice = variantPrices.length ? Math.min(...variantPrices) : null;
-  const maxPrice = variantPrices.length ? Math.max(...variantPrices) : null;
+  const price = priceParts(car.field_price_min);
+  const minPrice = car.field_price_min;
+  const maxPrice = car.field_price_max;
   const priceRange =
     minPrice !== null && maxPrice !== null && maxPrice > minPrice
       ? `${formatPriceLakh(minPrice)} – ${formatPriceLakh(maxPrice)}`
@@ -153,8 +153,8 @@ export default async function CarDetailPage({
           <div className="car-detail__key-numbers-inner container-page">
             <dl className="car-detail__key-numbers-list grid grid-cols-2 gap-px bg-white/10 sm:grid-cols-4">
               {[
-                { icon: Zap, label: "Engine", value: car.field_engine_capacity ? `${car.field_engine_capacity} cc` : "—" },
-                { icon: Gauge, label: "Mileage", value: car.field_mileage ? `${car.field_mileage} km/l` : "—" },
+                { icon: Zap, label: "Engine", value: engineRange(car) },
+                { icon: Gauge, label: "Mileage", value: mileageRange(car) },
                 { icon: Fuel, label: "Fuel", value: joinNames(car.field_fuel_type) },
                 { icon: Cog, label: "Transmission", value: joinNames(car.field_transmission) },
               ].map((s) => (
@@ -180,10 +180,10 @@ export default async function CarDetailPage({
           </FadeUp>
           <Reveal className="car-detail__specs-grid grid grid-cols-2 gap-4 lg:grid-cols-3">
             <RevealItem className="car-detail__spec">
-              <SpecCard icon={Zap} label="Engine capacity" value={car.field_engine_capacity} unit="cc" />
+              <SpecCard icon={Zap} label="Engine capacity" value={formatRange(powertrains.map((p) => p.engine_cc))} unit="cc" />
             </RevealItem>
             <RevealItem className="car-detail__spec">
-              <SpecCard icon={Gauge} label="Claimed mileage" value={car.field_mileage} unit="km/l" highlight />
+              <SpecCard icon={Gauge} label="Claimed mileage" value={formatRange(powertrains.map((p) => p.mileage_kmpl))} unit="km/l" highlight />
             </RevealItem>
             <RevealItem className="car-detail__spec">
               <SpecCard icon={Fuel} label="Fuel type" value={joinNames(car.field_fuel_type, "")} />
@@ -239,18 +239,42 @@ export default async function CarDetailPage({
             {variants.length > 0 ? (
               <Reveal className="car-detail__variants divide-y divide-border overflow-hidden rounded-3xl border border-border bg-surface">
                 {variants.map((v) => {
-                  const p = Number(v.field_price);
+                  const p = variantPriceFrom(v);
                   const pct =
-                    minPrice !== null && maxPrice !== null && maxPrice > minPrice && !Number.isNaN(p)
+                    minPrice !== null && maxPrice !== null && maxPrice > minPrice && p !== null
                       ? 15 + ((p - minPrice) / (maxPrice - minPrice)) * 85
                       : 100;
+                  const rows = variantPowertrains(v);
                   return (
                     <RevealItem key={v.id} className="car-detail__variant-item">
                       <div className="car-detail__variant group px-6 py-5 transition-colors duration-300 hover:bg-surface-2">
                         <div className="car-detail__variant-header flex items-baseline justify-between gap-4">
-                          <span className="car-detail__variant-name font-medium">{v.title}</span>
-                          <span className="car-detail__variant-price num shrink-0 font-bold text-foreground">{formatPriceLakh(v.field_price)}</span>
+                          <span className="car-detail__variant-name font-medium">{v.field_variant_name}</span>
+                          <span className="car-detail__variant-price num shrink-0 font-bold text-foreground">
+                            {rows.length > 1 && <span className="car-detail__variant-price-from mr-1 text-xs font-normal text-muted">from</span>}
+                            {formatPriceLakh(p)}
+                          </span>
                         </div>
+                        <ul className="car-detail__powertrains mt-2 space-y-1">
+                          {rows.map((pt, i) => (
+                            <li key={i} className="car-detail__powertrain flex items-baseline justify-between gap-4 text-xs text-muted">
+                              <span className="car-detail__powertrain-specs">
+                                {[
+                                  pt.engine_name,
+                                  termName(car.field_fuel_type, pt.fuel_type),
+                                  termName(car.field_transmission, pt.transmission),
+                                  formatRange([pt.power_bhp], "bhp", ""),
+                                  formatRange([pt.mileage_kmpl], "km/l", ""),
+                                ]
+                                  .filter(Boolean)
+                                  .join(" · ")}
+                              </span>
+                              {rows.length > 1 && (
+                                <span className="car-detail__powertrain-price num shrink-0">{formatPriceLakh(pt.ex_showroom_price)}</span>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
                         <div className="car-detail__variant-track mt-3 h-1 overflow-hidden rounded-full bg-surface-2 group-hover:bg-border" aria-hidden>
                           <div
                             className="car-detail__variant-bar h-full rounded-full bg-ink-400 transition-colors duration-300 group-hover:bg-accent-400"

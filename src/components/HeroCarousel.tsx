@@ -9,6 +9,7 @@ import { ArrowRight, ChevronLeft, ChevronRight, Fuel, Gauge, Search, Zap } from 
 import type { Car } from "@/types/drupal";
 import { imageAlt, imageUrl } from "@/lib/image";
 import { priceParts } from "@/utils/format";
+import { engineRange, mileageRange } from "@/utils/variants";
 
 const AUTO_ADVANCE_MS = 6000;
 const SWIPE_THRESHOLD = 60;
@@ -43,7 +44,7 @@ export function HeroCarousel({ cars }: { cars: Car[] }) {
   const car = cars[active];
   const cover = car ? imageUrl(car.field_car_images?.[0]) : null;
   const href = car ? car.path?.alias || `/cars/${car.id}` : "/cars";
-  const price = car ? priceParts(car.field_price) : null;
+  const price = car ? priceParts(car.field_price_min) : null;
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -184,8 +185,8 @@ export function HeroCarousel({ cars }: { cars: Car[] }) {
                 </Link>
                 <dl className="hero-carousel__stats grid grid-cols-3 gap-3">
                   {[
-                    { icon: Zap, label: "Engine", value: car.field_engine_capacity ? `${car.field_engine_capacity} cc` : "—" },
-                    { icon: Gauge, label: "Mileage", value: car.field_mileage ? `${car.field_mileage} km/l` : "—" },
+                    { icon: Zap, label: "Engine", value: engineRange(car) },
+                    { icon: Gauge, label: "Mileage", value: mileageRange(car) },
                     { icon: Fuel, label: "Fuel", value: car.field_fuel_type?.[0]?.name ?? "—" },
                   ].map((spec, i) => (
                     <motion.div

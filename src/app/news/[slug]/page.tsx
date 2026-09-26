@@ -81,7 +81,7 @@ export default async function NewsDetailPage({
                 {car.field_brand?.name} {car.field_car_model?.name}
               </p>
               <p className="news-detail__car-price num mt-1 text-sm text-muted">
-                From <span className="news-detail__car-price-value font-semibold text-foreground">{formatPriceLakh(car.field_price)}</span>
+                From <span className="news-detail__car-price-value font-semibold text-foreground">{formatPriceLakh(car.field_price_min)}</span>
               </p>
             </div>
             <span className="news-detail__car-arrow hidden h-10 w-10 shrink-0 place-items-center rounded-full border border-border transition-all duration-500 ease-premium group-hover:border-accent-400 group-hover:bg-accent-400 group-hover:text-ink-950 sm:grid">
