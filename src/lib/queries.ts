@@ -174,7 +174,7 @@ export async function getArticles(limit = 24): Promise<Article[]> {
     .addSort("created", "DESC")
     .addPageLimit(limit);
 
-  return drupal.getResourceCollection<Article[]>("node--article", {
+  return drupal.getResourceCollection<Article[]>("node--blogs", {
     params: params.getQueryObject(),
   });
 }
@@ -184,7 +184,7 @@ export async function getArticleByPath(slug: string): Promise<Article | null> {
   const path = await drupal.translatePath(`/blog/${slug}`);
   if (!path) return null;
 
-  return drupal.getResource<Article>("node--article", path.entity.uuid, {
+  return drupal.getResource<Article>("node--blogs", path.entity.uuid, {
     params: params.getQueryObject(),
   });
 }
