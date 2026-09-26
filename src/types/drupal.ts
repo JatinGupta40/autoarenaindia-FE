@@ -83,7 +83,7 @@ export interface News extends JsonApiResourceBase {
 }
 
 export interface Article extends JsonApiResourceBase {
-  type: "node--article";
+  type: "node--blogs";
   id: string;
   title: string;
   path: DrupalPath;
