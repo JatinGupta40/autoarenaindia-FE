@@ -1,21 +1,31 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+/*
+ * Semantic surface tokens. Components use these (bg-background, text-muted, …)
+ * so light/dark follows the OS. "Dark bands" (heroes, page headers, CTA blocks)
+ * deliberately use the fixed ink scale instead and stay dark in both schemes.
+ */
 :root {
-  --background: #f5fcfc;
-  --foreground: #012b30;
+  --background: #f6f7f8;
+  --foreground: #0d0f12;
   --surface: #ffffff;
-  --border: #daeded;
-  --muted: #49545c;
+  --surface-2: #eef0f2;
+  --border: #e1e4e8;
+  --muted: #5b636d;
+  /* Accent used for text on the page background — darker in light mode for contrast. */
+  --link: #0073a0;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #01191c;
-    --foreground: #edf6ff;
-    --surface: #012b30;
-    --border: #0f3a3f;
-    --muted: #90bbbb;
+    --background: #0b0d10;
+    --foreground: #eceef1;
+    --surface: #13161a;
+    --surface-2: #1b1f24;
+    --border: #252a31;
+    --muted: #98a0aa;
+    --link: #3cc4f5;
   }
 }
 
@@ -26,49 +36,49 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
   --color-border: var(--border);
   --color-muted: var(--muted);
+  --color-link: var(--link);
 
-  /* Brand: dark teal, distinct from the red/blue used by most car marketplaces. */
-  --color-primary-100: #f5fcfc;
-  --color-primary-200: #daeded;
-  --color-primary-400: #90bbbb;
-  --color-primary-600: #17494d;
-  --color-primary-800: #012b30;
+  /* Ink: near-black charcoal through metallic grey to off-white. */
+  --color-ink-950: #07080a;
+  --color-ink-900: #0d0f12;
+  --color-ink-800: #15181d;
+  --color-ink-700: #1e2228;
+  --color-ink-600: #2b3038;
+  --color-ink-500: #4a515b;
+  --color-ink-400: #7b838e;
+  --color-ink-300: #a9b0b9;
+  --color-ink-200: #d5d9de;
+  --color-ink-100: #eceef1;
+  --color-ink-50: #f6f7f8;
 
-  /* Accent: electric sky-blue for CTAs, links and highlights. */
-  --color-accent-100: #edf6ff;
-  --color-accent-200: #bbe6f6;
-  --color-accent-300: #77cdee;
+  /* The single accent: electric sky-blue, kept from the original brand. */
+  --color-accent-100: #e6f7fe;
+  --color-accent-200: #b3e6fb;
+  --color-accent-300: #5fd0f7;
   --color-accent-400: #00aeef;
-  --color-accent-500: #437fc7;
+  --color-accent-500: #0090c7;
+  --color-accent-600: #0073a0;
 
-  --color-neutral-50: #f6f6f2;
-  --color-neutral-100: #f9f9f9;
-  --color-neutral-200: #e9ebed;
-  --color-neutral-300: #d8dcde;
-  --color-neutral-400: #c2c8cc;
-  --color-neutral-500: #87929d;
-  --color-neutral-600: #68737d;
-  --color-neutral-700: #49545c;
-  --color-neutral-800: #2f3941;
+  --color-success-400: #3fbf8f;
 
-  --color-danger-100: #fff0f1;
-  --color-danger-400: #e35b66;
-  --color-danger-600: #cc3340;
+  --shadow-card: 0 1px 2px rgba(7, 8, 10, 0.04), 0 1px 3px rgba(7, 8, 10, 0.06);
+  --shadow-card-hover: 0 12px 24px -8px rgba(7, 8, 10, 0.16), 0 4px 8px -4px rgba(7, 8, 10, 0.08);
+  --shadow-glow: 0 0 0 1px rgba(0, 174, 239, 0.4), 0 8px 24px -6px rgba(0, 174, 239, 0.45);
 
-  --color-warning-100: #fff7ed;
-  --color-warning-400: #ffb057;
-  --color-warning-600: #ed8f1c;
+  --ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
 
-  --color-success-100: #edf8f4;
-  --color-success-400: #5eae91;
-  --color-success-600: #038153;
-
-  --shadow-card: 0px 1px 2px 0px rgba(1, 43, 48, 0.06), 0px 1px 3px 0px rgba(1, 43, 48, 0.10);
-  --shadow-card-hover: 0px 8px 8px -4px rgba(1, 43, 48, 0.06), 0px 20px 24px -4px rgba(1, 43, 48, 0.12);
+  --animate-marquee: marquee 40s linear infinite;
 
   --container-page: 1280px;
+  --header-h: 4rem;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }
 
 body {
@@ -79,4 +89,120 @@ body {
 
 h1, h2, h3, h4, .font-display {
   font-family: var(--font-display), var(--font-sans), sans-serif;
+  letter-spacing: -0.02em;
+}
+
+html {
+  scroll-padding-top: calc(var(--header-h) + 4rem);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
+::selection {
+  background: var(--color-accent-400);
+  color: var(--color-ink-950);
+}
+
+@layer components {
+  .container-page {
+    margin-inline: auto;
+    width: 100%;
+    max-width: var(--container-page);
+    padding-inline: 1rem;
+  }
+  @media (min-width: 640px) {
+    .container-page { padding-inline: 1.5rem; }
+  }
+
+  .eyebrow {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  /* Prices and spec numbers: tabular figures so columns of numbers line up. */
+  .num {
+    font-family: var(--font-display), var(--font-sans), sans-serif;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    padding: 0.75rem 1.4rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: transform 300ms var(--ease-premium), box-shadow 300ms var(--ease-premium),
+      background-color 300ms var(--ease-premium), border-color 300ms var(--ease-premium), color 300ms;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn:focus-visible { outline: 2px solid var(--color-accent-400); outline-offset: 3px; }
+
+  .btn-primary {
+    background: var(--color-accent-400);
+    color: var(--color-ink-950);
+  }
+  .btn-primary:hover {
+    background: var(--color-accent-300);
+    box-shadow: var(--shadow-glow);
+    transform: translateY(-1px);
+  }
+
+  /* Outline button for dark bands. */
+  .btn-ghost {
+    border: 1px solid rgb(255 255 255 / 0.18);
+    color: #fff;
+    background: rgb(255 255 255 / 0.04);
+    backdrop-filter: blur(8px);
+  }
+  .btn-ghost:hover {
+    border-color: rgb(255 255 255 / 0.4);
+    background: rgb(255 255 255 / 0.1);
+  }
+
+  /* Outline button for the regular page background. */
+  .btn-outline {
+    border: 1px solid var(--color-border);
+    color: var(--color-foreground);
+    background: var(--color-surface);
+  }
+  .btn-outline:hover {
+    border-color: var(--color-accent-400);
+    color: var(--color-link);
+  }
+
+  /* Frosted panel on dark bands. Used sparingly: floating stat cards, header. */
+  .glass {
+    background: rgb(21 24 29 / 0.55);
+    border: 1px solid rgb(255 255 255 / 0.1);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+  }
+
+  /* Faint engineering-grid texture for dark bands. */
+  .bg-grid {
+    background-image:
+      linear-gradient(rgb(255 255 255 / 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 0.04) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse at 50% 30%, #000 30%, transparent 75%);
+  }
+
+  .scrollbar-none { scrollbar-width: none; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+
+  /* Arrow that nudges right when its .group parent is hovered. */
+  .group:hover .arrow-nudge { transform: translateX(4px); }
+  .arrow-nudge { transition: transform 300ms var(--ease-premium); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee { animation: none; }
 }

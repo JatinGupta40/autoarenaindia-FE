@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import type { Metadata } from "next";
 import { getArticleByPath } from "@/lib/queries";
 import { imageAlt, imageUrl } from "@/lib/image";
 import { formatDate } from "@/utils/format";
 import { Badge } from "@/components/Badge";
+import { StoryHero } from "@/components/StoryHero";
 
 export const revalidate = 60;
 
@@ -31,34 +31,30 @@ export default async function ArticleDetailPage({
   const cover = imageUrl(article.field_image);
 
   return (
-    <article className="mx-auto max-w-3xl px-4 sm:px-6 py-8">
-      <div className="flex flex-wrap items-center gap-2 mb-4">
-        {article.field_tags?.map((tag) => <Badge key={tag.id}>{tag.name}</Badge>)}
-        <span className="text-sm text-muted">{formatDate(article.created)}</span>
-      </div>
-
-      <h1 className="font-display text-3xl sm:text-4xl font-700 text-primary-800 dark:text-accent-100">
-        {article.title}
-      </h1>
-
-      {cover && (
-        <div className="relative aspect-[16/9] mt-6 overflow-hidden rounded-2xl bg-primary-100">
-          <Image
-            src={cover}
-            alt={imageAlt(article.field_image, article.title)}
-            fill
-            priority
-            sizes="768px"
-            className="object-cover"
-          />
-        </div>
-      )}
+    <article className="blog-detail">
+      <StoryHero
+        section="Blog"
+        sectionHref="/blog"
+        title={article.title}
+        cover={cover}
+        coverAlt={imageAlt(article.field_image, article.title)}
+        meta={
+          <>
+            {article.field_tags?.map((tag) => (
+              <Badge key={tag.id} variant="glass">{tag.name}</Badge>
+            ))}
+            <span className="blog-detail__date text-sm text-ink-400">{formatDate(article.created)}</span>
+          </>
+        }
+      />
 
       {article.body?.processed && (
-        <div
-          className="prose prose-sm sm:prose-base max-w-none dark:prose-invert mt-8"
-          dangerouslySetInnerHTML={{ __html: article.body.processed }}
-        />
+        <div className="blog-detail__content mx-auto max-w-3xl px-4 sm:px-6">
+          <div
+            className="blog-detail__body prose prose-lg mt-12 max-w-none prose-headings:font-display prose-a:text-link dark:prose-invert"
+            dangerouslySetInnerHTML={{ __html: article.body.processed }}
+          />
+        </div>
       )}
     </article>
   );

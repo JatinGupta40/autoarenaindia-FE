@@ -22,6 +22,8 @@ export interface CarFilters {
   brand?: string;
   bodyType?: string;
   fuel?: string;
+  /** Free-text match against the car title (brand + model). */
+  q?: string;
   limit?: number;
 }
 
@@ -54,6 +56,9 @@ export async function getCars(filters: CarFilters = {}): Promise<Car[]> {
   if (filters.fuel) {
     params.addFilter("field_fuel_type.name", filters.fuel);
   }
+  if (filters.q) {
+    params.addFilter("title", filters.q, "CONTAINS");
+  }
 
   return drupal.getResourceCollection<Car[]>("node--cars", {
     params: params.getQueryObject(),
@@ -78,6 +83,22 @@ export async function getCarGenerations(car: Car): Promise<Car[]> {
     .addFilter("field_car_model.id", car.field_car_model.id)
     .addFilter("id", car.id, "<>")
     .addSort("field_year_start", "ASC");
+
+  return drupal.getResourceCollection<Car[]>("node--cars", {
+    params: params.getQueryObject(),
+  });
+}
+
+/** Cars of the same body type, excluding this nameplate, for the "similar cars" rail. */
+export async function getRelatedCars(car: Car, limit = 6): Promise<Car[]> {
+  if (!car.field_body_type?.id) return [];
+  const params = new DrupalJsonApiParams()
+    .addInclude(CAR_INCLUDES)
+    .addFilter("status", "1")
+    .addFilter("field_body_type.id", car.field_body_type.id)
+    .addFilter("field_car_model.id", car.field_car_model.id, "<>")
+    .addSort("field_year_start", "DESC")
+    .addPageLimit(limit);
 
   return drupal.getResourceCollection<Car[]>("node--cars", {
     params: params.getQueryObject(),
