@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { getCars, getTaxonomyTerms } from "@/lib/queries";
 import { CarCard } from "@/components/CarCard";
-import { FilterBar } from "@/components/FilterBar";
+import { CarsExplorer } from "@/components/CarsExplorer";
 import { EmptyState } from "@/components/EmptyState";
+import { Reveal, RevealItem } from "@/components/Reveal";
 
 export const revalidate = 60;
 
@@ -31,22 +32,20 @@ export default async function CarsPage({
         Cars
       </h1>
 
-      <div className="grid gap-8 lg:grid-cols-[280px_1fr]">
-        <aside className="lg:sticky lg:top-20 lg:self-start">
-          <FilterBar brands={brands} bodyTypes={bodyTypes} fuels={fuels} current={params} />
-        </aside>
-
-        <div>
-          <p className="text-sm text-muted mb-4">{cars.length} car{cars.length === 1 ? "" : "s"} found</p>
-          {cars.length === 0 ? (
-            <EmptyState message="No cars match these filters yet." />
-          ) : (
-            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {cars.map((car) => <CarCard key={car.id} car={car} />)}
-            </div>
-          )}
-        </div>
-      </div>
+      <CarsExplorer brands={brands} bodyTypes={bodyTypes} fuels={fuels} current={params}>
+        <p className="text-sm text-muted mb-4">{cars.length} car{cars.length === 1 ? "" : "s"} found</p>
+        {cars.length === 0 ? (
+          <EmptyState message="No cars match these filters yet." />
+        ) : (
+          <Reveal key={JSON.stringify(params)} className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            {cars.map((car) => (
+              <RevealItem key={car.id}>
+                <CarCard car={car} />
+              </RevealItem>
+            ))}
+          </Reveal>
+        )}
+      </CarsExplorer>
     </div>
   );
 }
