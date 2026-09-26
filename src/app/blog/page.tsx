@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getArticles } from "@/lib/queries";
 import { ArticleCard } from "@/components/ArticleCard";
 import { EmptyState } from "@/components/EmptyState";
+import { Reveal, RevealItem } from "@/components/Reveal";
 
 export const revalidate = 60;
 
@@ -20,9 +21,13 @@ export default async function BlogPage() {
       {articles.length === 0 ? (
         <EmptyState message="No blog posts yet." />
       ) : (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {articles.map((a) => <ArticleCard key={a.id} article={a} />)}
-        </div>
+        <Reveal className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {articles.map((a) => (
+            <RevealItem key={a.id}>
+              <ArticleCard article={a} />
+            </RevealItem>
+          ))}
+        </Reveal>
       )}
     </div>
   );

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { getNews } from "@/lib/queries";
 import { NewsCard } from "@/components/NewsCard";
 import { EmptyState } from "@/components/EmptyState";
+import { Reveal, RevealItem } from "@/components/Reveal";
 
 export const revalidate = 60;
 
@@ -50,9 +51,13 @@ export default async function NewsPage({
       {news.length === 0 ? (
         <EmptyState message="No news stories match this filter yet." />
       ) : (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {news.map((n) => <NewsCard key={n.id} news={n} />)}
-        </div>
+        <Reveal key={type ?? "all"} className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {news.map((n) => (
+            <RevealItem key={n.id}>
+              <NewsCard news={n} />
+            </RevealItem>
+          ))}
+        </Reveal>
       )}
     </div>
   );
