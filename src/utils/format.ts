@@ -39,3 +39,24 @@ export function priceParts(value: number | string | null | undefined): { amount:
 export function joinNames(terms: { name: string }[] | null | undefined, fallback = "—") {
   return terms?.map((t) => t.name).join(", ") || fallback;
 }
+
+/** "18.20" → "18.2"; drops the trailing zeros decimal fields come back with. */
+function trimNumber(value: number | string) {
+  return String(Number(value));
+}
+
+/**
+ * Min–max of a numeric spec across variants, e.g. "998–1497 cc", or a single value when they
+ * agree. Without a unit it returns the bare figure(s), for components that render the unit.
+ */
+export function formatRange(values: (number | string | null | undefined)[], unit = "", fallback = "—") {
+  const nums = values
+    .filter((v) => v !== null && v !== undefined && v !== "")
+    .map(Number)
+    .filter((n) => !Number.isNaN(n));
+  if (!nums.length) return fallback;
+  const min = Math.min(...nums);
+  const max = Math.max(...nums);
+  const range = min === max ? trimNumber(min) : `${trimNumber(min)}–${trimNumber(max)}`;
+  return unit ? `${range} ${unit}` : range;
+}

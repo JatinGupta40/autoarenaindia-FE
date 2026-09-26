@@ -1,6 +1,6 @@
 import { DrupalJsonApiParams } from "drupal-jsonapi-params";
 import { drupal } from "@/lib/drupal";
-import type { Article, Car, CarVariant, DrupalTerm, News } from "@/types/drupal";
+import type { Article, Car, DrupalTerm, News } from "@/types/drupal";
 
 export async function getTaxonomyTerms(vocabulary: string): Promise<DrupalTerm[]> {
   const params = new DrupalJsonApiParams().addSort("name", "ASC").addPageLimit(50);
@@ -16,6 +16,7 @@ const CAR_INCLUDES = [
   "field_fuel_type",
   "field_transmission",
   "field_car_images",
+  "field_car_variants",
 ];
 
 export interface CarFilters {
@@ -105,16 +106,6 @@ export async function getRelatedCars(car: Car, limit = 6): Promise<Car[]> {
   });
 }
 
-export async function getCarVariants(carId: string): Promise<CarVariant[]> {
-  const params = new DrupalJsonApiParams()
-    .addFilter("field_car.id", carId)
-    .addSort("field_price", "ASC");
-
-  return drupal.getResourceCollection<CarVariant[]>("node--car_variants", {
-    params: params.getQueryObject(),
-  });
-}
-
 export interface NewsFilters {
   type?: string;
   limit?: number;
@@ -183,7 +174,7 @@ export async function getArticles(limit = 24): Promise<Article[]> {
     .addSort("created", "DESC")
     .addPageLimit(limit);
 
-  return drupal.getResourceCollection<Article[]>("node--article", {
+  return drupal.getResourceCollection<Article[]>("node--blogs", {
     params: params.getQueryObject(),
   });
 }
@@ -193,7 +184,7 @@ export async function getArticleByPath(slug: string): Promise<Article | null> {
   const path = await drupal.translatePath(`/blog/${slug}`);
   if (!path) return null;
 
-  return drupal.getResource<Article>("node--article", path.entity.uuid, {
+  return drupal.getResource<Article>("node--blogs", path.entity.uuid, {
     params: params.getQueryObject(),
   });
 }

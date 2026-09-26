@@ -2,6 +2,7 @@ export interface DrupalTerm {
   type: string;
   id: string;
   name: string;
+  drupal_internal__tid?: number;
   path?: { alias: string | null };
 }
 
@@ -34,20 +35,39 @@ export interface Car extends JsonApiResourceBase {
   field_transmission: DrupalTerm[];
   field_year_start: number;
   field_year_end: number | null;
-  field_engine_capacity: string;
-  field_mileage: string;
-  field_price: string;
+  /** Derived by the backend from published variants; never edited by hand. */
+  field_price_min: number | null;
+  field_price_max: number | null;
+  field_car_variants: CarVariant[];
   field_car_images: DrupalImage[];
   body?: { value: string; summary?: string; processed?: string };
 }
 
+/**
+ * One engine + transmission combination a variant is sold with. Fuel and
+ * transmission are taxonomy term IDs (custom_field sub-fields are not JSON:API
+ * relationships); resolve them against the car's own field_fuel_type /
+ * field_transmission terms, which always cover every published powertrain.
+ */
+export interface Powertrain {
+  engine_name: string | null;
+  fuel_type: number | null;
+  transmission: number | null;
+  engine_cc: number | null;
+  /** Decimal sub-fields arrive from JSON:API as strings, e.g. "18.20". */
+  power_bhp: string | null;
+  torque_nm: string | null;
+  mileage_kmpl: string | null;
+  ex_showroom_price: number | null;
+}
+
 export interface CarVariant {
-  type: "node--car_variants";
+  type: "paragraph--variant";
   id: string;
-  title: string;
-  field_car: Car;
-  field_price: string;
-  body?: { value: string; processed?: string };
+  status: boolean;
+  field_variant_name: string;
+  field_variant_description?: { value: string; processed?: string } | null;
+  field_powertrains: Powertrain[];
 }
 
 export interface News extends JsonApiResourceBase {
@@ -63,7 +83,7 @@ export interface News extends JsonApiResourceBase {
 }
 
 export interface Article extends JsonApiResourceBase {
-  type: "node--article";
+  type: "node--blogs";
   id: string;
   title: string;
   path: DrupalPath;

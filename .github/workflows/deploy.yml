@@ -1,0 +1,35 @@
+name: Deploy
+
+# Runs when a PR is merged: develop -> dev, stage -> stage, main -> production.
+# CI runs again on the merged code before anything is deployed.
+on:
+  push:
+    branches: [develop, stage, main]
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  # Never cancel a deploy halfway; queue the next one instead.
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    name: CI
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    name: Deploy to ${{ github.ref_name == 'main' && 'production' || github.ref_name == 'stage' && 'stage' || 'dev' }}
+    needs: ci
+    runs-on: ubuntu-latest
+    # Settings -> Environments holds each environment's secrets and variables
+    # (e.g. its NEXT_PUBLIC_DRUPAL_BASE_URL) and approval rules.
+    environment: ${{ github.ref_name == 'main' && 'production' || github.ref_name == 'stage' && 'stage' || 'dev' }}
+    steps:
+      - uses: actions/checkout@v7
+
+      # Placeholder until hosting is chosen: replace with the real deploy
+      # (e.g. Vercel, or build + upload to a Node host).
+      - name: Deploy
+        run: echo "::notice::No ${{ github.ref_name }} environment configured yet; nothing was deployed."

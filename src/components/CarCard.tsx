@@ -4,6 +4,7 @@ import { ArrowUpRight, Cog, Fuel, Gauge } from "lucide-react";
 import type { Car } from "@/types/drupal";
 import { imageAlt, imageUrl } from "@/lib/image";
 import { formatGenerationRange, priceParts } from "@/utils/format";
+import { mileageRange } from "@/utils/variants";
 import { Badge } from "@/components/Badge";
 
 function MiniSpec({ icon: Icon, label, value }: { icon: typeof Gauge; label: string; value: string }) {
@@ -21,7 +22,7 @@ function MiniSpec({ icon: Icon, label, value }: { icon: typeof Gauge; label: str
 export function CarCard({ car, priority = false }: { car: Car; priority?: boolean }) {
   const cover = imageUrl(car.field_car_images?.[0]);
   const href = car.path?.alias || `/cars/${car.id}`;
-  const price = priceParts(car.field_price);
+  const price = priceParts(car.field_price_min);
   const name = `${car.field_brand?.name ?? ""} ${car.field_car_model?.name ?? ""}`.trim();
 
   return (
@@ -58,7 +59,7 @@ export function CarCard({ car, priority = false }: { car: Car; priority?: boolea
         <p className="car-card__years text-sm text-muted">{formatGenerationRange(car.field_year_start, car.field_year_end)}</p>
 
         <dl className="car-card__specs mt-4 grid grid-cols-3 gap-3 border-y border-border py-3">
-          <MiniSpec icon={Gauge} label="Mileage" value={car.field_mileage ? `${car.field_mileage} km/l` : "—"} />
+          <MiniSpec icon={Gauge} label="Mileage" value={mileageRange(car)} />
           <MiniSpec icon={Fuel} label="Fuel" value={car.field_fuel_type?.[0]?.name ?? "—"} />
           <MiniSpec icon={Cog} label="Gearbox" value={car.field_transmission?.[0]?.name ?? "—"} />
         </dl>
